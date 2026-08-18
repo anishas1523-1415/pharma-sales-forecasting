@@ -1,0 +1,9 @@
+MAE,RMSE,MAPE,category,train_end,test_start,model_params
+2.1881,2.8197,67.52,M01AB,2018-08-18,2018-08-19,"{'n_estimators': 300, 'num_leaves': 31, 'max_depth': 8, 'learning_rate': 0.1, 'subsample': 0.8, 'colsample_bytree': 0.8, 'reg_alpha': 0.1, 'reg_lambda': 0.1, 'min_child_samples': 20}"
+1.6473,2.1236,101.33,M01AE,2018-08-18,2018-08-19,"{'n_estimators': 300, 'num_leaves': 31, 'max_depth': 5, 'learning_rate': 0.05, 'subsample': 0.8, 'colsample_bytree': 0.8, 'reg_alpha': 0.1, 'reg_lambda': 0.1, 'min_child_samples': 20}"
+1.6047,2.0387,113.15,N02BA,2018-08-18,2018-08-19,"{'n_estimators': 300, 'num_leaves': 63, 'max_depth': 8, 'learning_rate': 0.1, 'subsample': 0.8, 'colsample_bytree': 0.8, 'reg_alpha': 0.1, 'reg_lambda': 0.1, 'min_child_samples': 20}"
+9.3879,12.5757,34.05,N02BE,2018-08-18,2018-08-19,"{'n_estimators': 300, 'num_leaves': 31, 'max_depth': 5, 'learning_rate': 0.05, 'subsample': 0.8, 'colsample_bytree': 0.8, 'reg_alpha': 0.1, 'reg_lambda': 0.1, 'min_child_samples': 20}"
+3.2024,4.0928,56.1,N05B,2018-08-18,2018-08-19,"{'n_estimators': 300, 'num_leaves': 63, 'max_depth': 8, 'learning_rate': 0.1, 'subsample': 0.8, 'colsample_bytree': 0.8, 'reg_alpha': 0.1, 'reg_lambda': 0.1, 'min_child_samples': 20}"
+0.8227,1.1109,58.07,N05C,2018-08-18,2018-08-19,"{'n_estimators': 300, 'num_leaves': 31, 'max_depth': 5, 'learning_rate': 0.05, 'subsample': 0.8, 'colsample_bytree': 0.8, 'reg_alpha': 0.1, 'reg_lambda': 0.1, 'min_child_samples': 20}"
+5.6849,8.2616,103.84,R03,2018-08-18,2018-08-19,"{'n_estimators': 300, 'num_leaves': 63, 'max_depth': 8, 'learning_rate': 0.05, 'subsample': 0.8, 'colsample_bytree': 0.8, 'reg_alpha': 0.1, 'reg_lambda': 0.1, 'min_child_samples': 20}"
+1.6507,2.1938,62.37,R06,2018-08-18,2018-08-19,"{'n_estimators': 300, 'num_leaves': 31, 'max_depth': 5, 'learning_rate': 0.05, 'subsample': 0.8, 'colsample_bytree': 0.8, 'reg_alpha': 0.1, 'reg_lambda': 0.1, 'min_child_samples': 20}"

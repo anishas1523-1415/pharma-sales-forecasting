@@ -1,0 +1,47 @@
+# =====================================================================
+# Git Ignore Rules — Pharma Sales Analysis & Forecasting
+# =====================================================================
+
+# ── Trained Model Binaries & Artifacts ──────────────────────────────
+data/outputs/trained_models/
+*.pkl
+*.keras
+*.h5
+*.joblib
+*.sav
+*.pth
+*.pt
+*.onnx
+
+# ── Python Virtual Environments ─────────────────────────────────────
+venv/
+.venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# ── Python Bytecode & Cache ──────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+
+# ── Operating System & IDE Files ────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# ── Temporary & Log Files ────────────────────────────────────────────
+*.log
+*.tmp
+scratch/
+.system_generated/

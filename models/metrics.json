@@ -1,0 +1,54 @@
+{
+  "M01AB": {
+    "prophet": {
+      "MAE": 2.2566,
+      "RMSE": 2.9099,
+      "MAPE_%": 60.75,
+      "MAPE": 60.75
+    },
+    "arima": {
+      "p": 5.0,
+      "d": 0.0,
+      "q": 5.0,
+      "MAE": 2.1893,
+      "RMSE": 2.5854,
+      "MAPE": 68.5274,
+      "n_zero_actuals": 0.0,
+      "train_end": "2018-08-12",
+      "test_start": "2018-08-13",
+      "lb_pvalue": 0.6655,
+      "adf_pvalue": 0.0
+    },
+    "sarima": {
+      "order": "(3, 0, 3)",
+      "seasonal_order": "(0, 0, 1, 7)",
+      "MAE": 2.1517,
+      "RMSE": 2.5763,
+      "MAPE": 67.8749,
+      "n_zero_actuals": 0.0,
+      "train_end": "2018-08-12",
+      "test_start": "2018-08-13",
+      "lb_pvalue": 0.2654,
+      "adf_pvalue": 0.0
+    },
+    "lightgbm": {
+      "MAE": 2.1881,
+      "RMSE": 2.8197,
+      "MAPE": 67.52,
+      "train_end": "2018-08-18",
+      "test_start": "2018-08-19",
+      "model_params": "{'n_estimators': 300, 'num_leaves': 31, 'max_depth': 8, 'learning_rate': 0.1, 'subsample': 0.8, 'colsample_bytree': 0.8, 'reg_alpha': 0.1, 'reg_lambda': 0.1, 'min_child_samples': 20}"
+    },
+    "lstm": {
+      "MAE": 2.2047,
+      "RMSE": 2.8236,
+      "MAPE": 67.37,
+      "train_samples": 1613.0,
+      "test_samples": 404.0,
+      "lookback": 60.0,
+      "horizon": 30.0,
+      "units": 64.0,
+      "epochs_run": 23.0
+    },
+    "best_model": "prophet"
+  },
