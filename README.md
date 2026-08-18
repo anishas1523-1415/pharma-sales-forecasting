@@ -8,6 +8,8 @@ top — served through a FastAPI backend and a React dashboard.
 
 ## Architecture
 
+**Full diagram (layers, security, CI/CD, and the engineering decisions behind them): https://claude.ai/code/artifact/262f2c13-2e6f-4be8-9079-daf2ebbdd718**
+
 ```
 data/raw (Kaggle pharma sales, 2014-2019 daily)
       │
@@ -120,6 +122,26 @@ python src/models/reconcile_retrain.py --model lightgbm   # keeps only genuine p
 python src/models/rebuild_metrics_json.py
 python test_all.py   # 19/19 must pass
 ```
+
+## Security, observability, explainability
+
+- **API-key auth** (`backend/auth.py`) — checks `X-API-Key` against `API_KEYS`
+  (comma-separated env var). Unset locally/in CI, so dev and tests never need
+  a key; the deployed demo instance ships a published key precisely so the
+  live pitch isn't gated behind credentials only the team has. `/health`
+  always stays open (Cloud Run health checks, uptime pings).
+- **Prometheus metrics** at `/observability/metrics` — real request-count and
+  latency histograms via `prometheus_client`, scrape-ready. (Not built on the
+  usual FastAPI-instrumentor wrapper package — it pulled in a starlette major
+  version incompatible with this project's pinned fastapi and broke the app
+  on install. Built directly on the lower-level client instead.)
+- **Structured JSON logs** (`backend/observability.py`) — one event per line.
+- **Feature importance surfaced in-product**, not just generated and left in
+  `data/outputs/forecasts/plots/`: `src/models/export_feature_importance.py`
+  extracts real LightGBM split-gain importances into a git-tracked JSON,
+  served via `/feature-importance/{category}` and shown on the Model
+  Comparison page — which lag/rolling/calendar features actually drive each
+  category's forecast.
 
 ## Delivery approach
 

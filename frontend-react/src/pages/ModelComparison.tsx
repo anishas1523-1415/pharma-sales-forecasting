@@ -7,7 +7,7 @@ import { SectionTitle } from '@/components/ui/SectionTitle'
 import { OfflineBanner } from '@/components/ui/OfflineBanner'
 import { PlotlyChart } from '@/components/ui/PlotlyChart'
 import { ControlBar, Select, Slider } from '@/components/ui/Controls'
-import { useHealth, useMetrics, useCompareModels } from '@/lib/queries'
+import { useHealth, useMetrics, useCompareModels, useFeatureImportance } from '@/lib/queries'
 import { getForecast } from '@/lib/apiClient'
 import { ALL_MODELS, CATEGORIES, MODEL_COLORS, MODEL_LABELS } from '@/lib/constants'
 import { fmtNum, fmtPct } from '@/lib/format'
@@ -25,6 +25,7 @@ export function ModelComparison() {
   const [selectedModels, setSelectedModels] = useState<ModelType[]>([...ALL_MODELS])
 
   const { data: cmpData } = useCompareModels(category, view === 'category')
+  const { data: importanceData } = useFeatureImportance(category, view === 'category')
 
   const overlayQueries = useQueries({
     queries: selectedModels.map((m) => ({
@@ -162,6 +163,29 @@ export function ModelComparison() {
                     layout={applyDark({ yaxis: { title: { text: 'MAE (units)' } } }, `${category} — Model MAE Comparison`)}
                     height={350}
                   />
+
+                  {importanceData && importanceData.features.length > 0 && (
+                    <>
+                      <SectionTitle icon="🔬" title="What drives the LightGBM forecast" />
+                      <p className="mb-3 text-xs text-text-muted">
+                        Top features by split-gain importance from the trained model — which lagged/rolling sales
+                        values and calendar signals it actually relies on for {category}.
+                      </p>
+                      <PlotlyChart
+                        data={[{
+                          x: [...importanceData.features].reverse().map((f) => f.importance_pct),
+                          y: [...importanceData.features].reverse().map((f) => f.feature),
+                          type: 'bar',
+                          orientation: 'h',
+                          marker: { color: MODEL_COLORS.lightgbm },
+                          text: [...importanceData.features].reverse().map((f) => `${f.importance_pct}%`),
+                          textposition: 'outside',
+                        }]}
+                        layout={applyDark({ margin: { l: 120, r: 30, t: 10, b: 30 }, xaxis: { title: { text: '% of total importance' } } })}
+                        height={320}
+                      />
+                    </>
+                  )}
                 </>
               )
             })()}

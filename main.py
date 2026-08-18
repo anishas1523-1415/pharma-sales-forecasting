@@ -2,8 +2,8 @@
 main.py — Unified FastAPI entry point.
 
 All routes live under backend/routes/:
-  /health, /models, /metrics, /forecast, /compare-models
-  /api/anomaly, /api/what-if, /api/recommendations
+  /health, /models, /metrics, /forecast, /compare-models, /actuals
+  /api/anomaly, /api/what-if, /api/recommendations, /feature-importance
 
 Run from project root:
     uvicorn main:app --reload
@@ -14,11 +14,13 @@ Docs:
 
 import os
 from contextlib import asynccontextmanager
-from fastapi import FastAPI
+from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from backend.auth import require_api_key
+from backend.observability import configure_json_logging, instrument
 from backend.services.model_service import model_service
-from backend.routes import health, models, metrics, forecast, anomaly, whatif, recommendation, actuals
+from backend.routes import health, models, metrics, forecast, anomaly, whatif, recommendation, actuals, explainability
 
 
 @asynccontextmanager
@@ -26,6 +28,8 @@ async def lifespan(app: FastAPI):
     model_service.load_all()
     yield
 
+
+configure_json_logging()
 
 app = FastAPI(
     title="Pharma Sales Forecasting & Analysis API",
@@ -35,6 +39,8 @@ app = FastAPI(
     version="1.0.0",
     lifespan=lifespan,
 )
+
+instrument(app)
 
 # --- CORS ---
 # Allow the local Vite dev server and the deployed frontend origin(s).
@@ -48,17 +54,24 @@ app.add_middleware(
     allow_origins=_default_origins + _extra_origins,
     allow_credentials=False,
     allow_methods=["GET", "POST"],
-    allow_headers=["*"],
+    allow_headers=["*", "X-API-Key"],
 )
 
-# --- Model serving routes (teammate) ---
+# --- Health check stays open — needed for uptime pings / Cloud Run probes ---
 app.include_router(health.router)
-app.include_router(models.router)
-app.include_router(metrics.router)
-app.include_router(forecast.router)
-app.include_router(actuals.router)
+
+# --- Everything else requires an API key when API_KEYS is configured
+# (see backend/auth.py — a no-op locally / in CI where it isn't set) ---
+_auth = [Depends(require_api_key)]
+
+# --- Model serving routes (teammate) ---
+app.include_router(models.router, dependencies=_auth)
+app.include_router(metrics.router, dependencies=_auth)
+app.include_router(forecast.router, dependencies=_auth)
+app.include_router(actuals.router, dependencies=_auth)
+app.include_router(explainability.router, dependencies=_auth)
 
 # --- Analysis layer routes ---
-app.include_router(anomaly.router)
-app.include_router(whatif.router)
-app.include_router(recommendation.router)
+app.include_router(anomaly.router, dependencies=_auth)
+app.include_router(whatif.router, dependencies=_auth)
+app.include_router(recommendation.router, dependencies=_auth)

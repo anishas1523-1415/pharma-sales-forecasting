@@ -8,6 +8,7 @@ import type {
   ActualsResponse,
   AnomalyResponse,
   CompareModelsResponse,
+  FeatureImportanceResponse,
   ForecastResponse,
   MetricsResponse,
   ModelsListResponse,
@@ -17,9 +18,15 @@ import type {
 
 export const API_BASE_URL: string = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8000'
 
+// Only sent when VITE_API_KEY is set (deployed demo instance). Local dev
+// talks to a backend with no API_KEYS configured, where auth is a no-op —
+// see backend/auth.py.
+const API_KEY: string | undefined = import.meta.env.VITE_API_KEY
+
 const client = axios.create({
   baseURL: API_BASE_URL,
   timeout: 10_000,
+  headers: API_KEY ? { 'X-API-Key': API_KEY } : {},
 })
 
 export async function checkHealth(): Promise<boolean> {
@@ -43,6 +50,11 @@ export async function getMetrics(): Promise<MetricsResponse> {
 
 export async function getActuals(category: string, days = 90): Promise<ActualsResponse> {
   const { data } = await client.get<ActualsResponse>(`/actuals/${category}`, { params: { days } })
+  return data
+}
+
+export async function getFeatureImportance(category: string): Promise<FeatureImportanceResponse> {
+  const { data } = await client.get<FeatureImportanceResponse>(`/feature-importance/${category}`)
   return data
 }
 

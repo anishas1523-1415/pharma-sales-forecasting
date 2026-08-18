@@ -1,0 +1,418 @@
+{
+  "M01AB": [
+    {
+      "feature": "rolling_mean_30",
+      "importance": 10,
+      "importance_pct": 14.71
+    },
+    {
+      "feature": "lag_19",
+      "importance": 9,
+      "importance_pct": 13.24
+    },
+    {
+      "feature": "lag_11",
+      "importance": 5,
+      "importance_pct": 7.35
+    },
+    {
+      "feature": "lag_20",
+      "importance": 4,
+      "importance_pct": 5.88
+    },
+    {
+      "feature": "lag_23",
+      "importance": 4,
+      "importance_pct": 5.88
+    },
+    {
+      "feature": "rolling_std_7",
+      "importance": 4,
+      "importance_pct": 5.88
+    },
+    {
+      "feature": "rolling_max_7",
+      "importance": 4,
+      "importance_pct": 5.88
+    },
+    {
+      "feature": "lag_5",
+      "importance": 3,
+      "importance_pct": 4.41
+    },
+    {
+      "feature": "lag_10",
+      "importance": 3,
+      "importance_pct": 4.41
+    },
+    {
+      "feature": "lag_29",
+      "importance": 3,
+      "importance_pct": 4.41
+    }
+  ],
+  "M01AE": [
+    {
+      "feature": "lag_17",
+      "importance": 15,
+      "importance_pct": 5.62
+    },
+    {
+      "feature": "lag_16",
+      "importance": 12,
+      "importance_pct": 4.49
+    },
+    {
+      "feature": "rolling_mean_14",
+      "importance": 11,
+      "importance_pct": 4.12
+    },
+    {
+      "feature": "rolling_max_30",
+      "importance": 10,
+      "importance_pct": 3.75
+    },
+    {
+      "feature": "day_of_week",
+      "importance": 10,
+      "importance_pct": 3.75
+    },
+    {
+      "feature": "year",
+      "importance": 10,
+      "importance_pct": 3.75
+    },
+    {
+      "feature": "rolling_mean_30",
+      "importance": 9,
+      "importance_pct": 3.37
+    },
+    {
+      "feature": "lag_1",
+      "importance": 8,
+      "importance_pct": 3.0
+    },
+    {
+      "feature": "lag_4",
+      "importance": 8,
+      "importance_pct": 3.0
+    },
+    {
+      "feature": "lag_18",
+      "importance": 8,
+      "importance_pct": 3.0
+    }
+  ],
+  "N02BA": [
+    {
+      "feature": "lag_14",
+      "importance": 67,
+      "importance_pct": 3.64
+    },
+    {
+      "feature": "lag_20",
+      "importance": 66,
+      "importance_pct": 3.58
+    },
+    {
+      "feature": "lag_15",
+      "importance": 65,
+      "importance_pct": 3.53
+    },
+    {
+      "feature": "day_of_month",
+      "importance": 64,
+      "importance_pct": 3.47
+    },
+    {
+      "feature": "rolling_std_7",
+      "importance": 62,
+      "importance_pct": 3.37
+    },
+    {
+      "feature": "rolling_mean_14",
+      "importance": 59,
+      "importance_pct": 3.2
+    },
+    {
+      "feature": "rolling_std_14",
+      "importance": 59,
+      "importance_pct": 3.2
+    },
+    {
+      "feature": "lag_23",
+      "importance": 57,
+      "importance_pct": 3.09
+    },
+    {
+      "feature": "lag_11",
+      "importance": 55,
+      "importance_pct": 2.99
+    },
+    {
+      "feature": "pct_change_1",
+      "importance": 53,
+      "importance_pct": 2.88
+    }
+  ],
+  "N02BE": [
+    {
+      "feature": "lag_7",
+      "importance": 328,
+      "importance_pct": 4.43
+    },
+    {
+      "feature": "lag_15",
+      "importance": 259,
+      "importance_pct": 3.5
+    },
+    {
+      "feature": "lag_3",
+      "importance": 256,
+      "importance_pct": 3.46
+    },
+    {
+      "feature": "day_of_month",
+      "importance": 241,
+      "importance_pct": 3.26
+    },
+    {
+      "feature": "rolling_mean_14",
+      "importance": 229,
+      "importance_pct": 3.09
+    },
+    {
+      "feature": "lag_16",
+      "importance": 203,
+      "importance_pct": 2.74
+    },
+    {
+      "feature": "lag_21",
+      "importance": 203,
+      "importance_pct": 2.74
+    },
+    {
+      "feature": "lag_26",
+      "importance": 202,
+      "importance_pct": 2.73
+    },
+    {
+      "feature": "lag_1",
+      "importance": 201,
+      "importance_pct": 2.72
+    },
+    {
+      "feature": "day_of_week",
+      "importance": 200,
+      "importance_pct": 2.7
+    }
+  ],
+  "N05B": [
+    {
+      "feature": "rolling_mean_30",
+      "importance": 95,
+      "importance_pct": 3.93
+    },
+    {
+      "feature": "rolling_mean_7",
+      "importance": 81,
+      "importance_pct": 3.35
+    },
+    {
+      "feature": "lag_2",
+      "importance": 76,
+      "importance_pct": 3.14
+    },
+    {
+      "feature": "lag_1",
+      "importance": 74,
+      "importance_pct": 3.06
+    },
+    {
+      "feature": "lag_26",
+      "importance": 71,
+      "importance_pct": 2.93
+    },
+    {
+      "feature": "day_of_month",
+      "importance": 69,
+      "importance_pct": 2.85
+    },
+    {
+      "feature": "rolling_std_30",
+      "importance": 65,
+      "importance_pct": 2.69
+    },
+    {
+      "feature": "lag_14",
+      "importance": 64,
+      "importance_pct": 2.64
+    },
+    {
+      "feature": "rolling_mean_14",
+      "importance": 64,
+      "importance_pct": 2.64
+    },
+    {
+      "feature": "lag_29",
+      "importance": 63,
+      "importance_pct": 2.6
+    }
+  ],
+  "N05C": [
+    {
+      "feature": "day_of_month",
+      "importance": 24,
+      "importance_pct": 8.92
+    },
+    {
+      "feature": "day_of_week",
+      "importance": 15,
+      "importance_pct": 5.58
+    },
+    {
+      "feature": "year",
+      "importance": 15,
+      "importance_pct": 5.58
+    },
+    {
+      "feature": "rolling_std_14",
+      "importance": 14,
+      "importance_pct": 5.2
+    },
+    {
+      "feature": "month",
+      "importance": 13,
+      "importance_pct": 4.83
+    },
+    {
+      "feature": "rolling_std_30",
+      "importance": 12,
+      "importance_pct": 4.46
+    },
+    {
+      "feature": "rolling_mean_30",
+      "importance": 11,
+      "importance_pct": 4.09
+    },
+    {
+      "feature": "lag_15",
+      "importance": 10,
+      "importance_pct": 3.72
+    },
+    {
+      "feature": "lag_30",
+      "importance": 10,
+      "importance_pct": 3.72
+    },
+    {
+      "feature": "rolling_mean_7",
+      "importance": 9,
+      "importance_pct": 3.35
+    }
+  ],
+  "R03": [
+    {
+      "feature": "rolling_mean_30",
+      "importance": 78,
+      "importance_pct": 9.7
+    },
+    {
+      "feature": "rolling_mean_14",
+      "importance": 55,
+      "importance_pct": 6.84
+    },
+    {
+      "feature": "month",
+      "importance": 54,
+      "importance_pct": 6.72
+    },
+    {
+      "feature": "lag_12",
+      "importance": 32,
+      "importance_pct": 3.98
+    },
+    {
+      "feature": "lag_1",
+      "importance": 31,
+      "importance_pct": 3.86
+    },
+    {
+      "feature": "year",
+      "importance": 26,
+      "importance_pct": 3.23
+    },
+    {
+      "feature": "lag_14",
+      "importance": 25,
+      "importance_pct": 3.11
+    },
+    {
+      "feature": "lag_23",
+      "importance": 25,
+      "importance_pct": 3.11
+    },
+    {
+      "feature": "rolling_std_7",
+      "importance": 25,
+      "importance_pct": 3.11
+    },
+    {
+      "feature": "rolling_std_30",
+      "importance": 25,
+      "importance_pct": 3.11
+    }
+  ],
+  "R06": [
+    {
+      "feature": "rolling_mean_14",
+      "importance": 8,
+      "importance_pct": 8.16
+    },
+    {
+      "feature": "rolling_mean_7",
+      "importance": 7,
+      "importance_pct": 7.14
+    },
+    {
+      "feature": "rolling_std_14",
+      "importance": 6,
+      "importance_pct": 6.12
+    },
+    {
+      "feature": "rolling_mean_30",
+      "importance": 6,
+      "importance_pct": 6.12
+    },
+    {
+      "feature": "month",
+      "importance": 6,
+      "importance_pct": 6.12
+    },
+    {
+      "feature": "quarter",
+      "importance": 6,
+      "importance_pct": 6.12
+    },
+    {
+      "feature": "lag_8",
+      "importance": 5,
+      "importance_pct": 5.1
+    },
+    {
+      "feature": "lag_21",
+      "importance": 5,
+      "importance_pct": 5.1
+    },
+    {
+      "feature": "rolling_std_7",
+      "importance": 5,
+      "importance_pct": 5.1
+    },
+    {
+      "feature": "lag_13",
+      "importance": 4,
+      "importance_pct": 4.08
+    }
+  ]
+}

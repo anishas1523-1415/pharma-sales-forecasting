@@ -8,6 +8,7 @@ import type {
   ActualsResponse,
   AnomalyResponse,
   CompareModelsResponse,
+  FeatureImportanceResponse,
   ForecastResponse,
   MetricsResponse,
   ModelsListResponse,
@@ -47,6 +48,16 @@ export function useActuals(category: string, days = 90, enabled = true): UseQuer
     queryFn: () => api.getActuals(category, days),
     staleTime: 1_800_000,
     enabled,
+  })
+}
+
+export function useFeatureImportance(category: string, enabled = true): UseQueryResult<FeatureImportanceResponse> {
+  return useQuery({
+    queryKey: ['feature-importance', category],
+    queryFn: () => api.getFeatureImportance(category),
+    staleTime: 3_600_000,
+    enabled,
+    retry: false, // 404 when the category wasn't LightGBM-retrained locally — expected, not an error to retry
   })
 }
 

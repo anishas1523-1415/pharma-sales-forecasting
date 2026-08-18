@@ -95,6 +95,17 @@ export interface ActualsResponse {
   results: { date: string; actual_sales: number }[]
 }
 
+export interface FeatureImportanceItem {
+  feature: string
+  importance: number
+  importance_pct: number
+}
+
+export interface FeatureImportanceResponse {
+  category: string
+  features: FeatureImportanceItem[]
+}
+
 export interface RecommendationResponse {
   category: string
   model: string

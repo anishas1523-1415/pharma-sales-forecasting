@@ -37,6 +37,13 @@ variable "frontend_origin" {
   default     = ""
 }
 
+variable "api_keys" {
+  description = "Comma-separated API keys the backend will accept (X-API-Key header). Leave blank to leave the demo instance open — see backend/auth.py."
+  type        = string
+  default     = ""
+  sensitive   = true
+}
+
 provider "google" {
   project = var.project_id
   region  = var.region
@@ -82,6 +89,10 @@ resource "google_cloud_run_v2_service" "backend" {
       env {
         name  = "FRONTEND_ORIGIN"
         value = var.frontend_origin
+      }
+      env {
+        name  = "API_KEYS"
+        value = var.api_keys
       }
       startup_probe {
         http_get {
