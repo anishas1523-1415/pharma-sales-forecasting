@@ -124,20 +124,22 @@ def load_forecast(category: str, model: str) -> pd.DataFrame:
         columns={
             "ds": "date",
             "yhat": "predicted_sales",
+            "yhat_lower": "lower_bound",
+            "yhat_upper": "upper_bound",
         }
     )
 
     df["date"] = df["date"].dt.strftime("%Y-%m-%d")
 
-    return (
-        df[
-            [
-                "date",
-                "predicted_sales",
-            ]
-        ]
-        .dropna()
-    )
+    # Confidence bounds only exist for prophet/arima/sarima. LightGBM/LSTM
+    # forecasts carry no interval — leave the columns absent rather than
+    # fabricating bounds, so downstream can treat them as optional.
+    cols = ["date", "predicted_sales"]
+    for optional_col in ("lower_bound", "upper_bound"):
+        if optional_col in df.columns:
+            cols.append(optional_col)
+
+    return df[cols].dropna(subset=["date", "predicted_sales"])
 
 
 def load_test_period(category: str, model: str) -> pd.DataFrame:
@@ -208,6 +210,41 @@ def load_test_period(category: str, model: str) -> pd.DataFrame:
         ]
         .dropna()
     )
+
+
+def list_available_models_and_categories() -> dict:
+    """
+    Derive which (model, category) forecast files actually exist on disk.
+
+    This is intentionally independent of ModelService's in-memory registry,
+    which only reflects *loaded model binaries* (.pkl/.keras under
+    data/outputs/trained_models/ — gitignored, not shipped). Forecast
+    serving reads pre-generated CSVs, not live models, so "available" here
+    means "has a forecast CSV", which is what the UI actually needs.
+
+    Returns:
+        {"models": [...], "categories": [...]}
+    """
+
+    found_models: set[str] = set()
+    found_categories: set[str] = set()
+
+    if FORECAST_DIR.exists():
+        for path in FORECAST_DIR.glob("*_forecast.csv"):
+            # filename pattern: {category}_{model}_forecast.csv
+            stem = path.stem[: -len("_forecast")]
+            parts = stem.rsplit("_", 1)
+            if len(parts) != 2:
+                continue
+            category, model = parts
+            if category in VALID_CATEGORIES and model in VALID_MODELS:
+                found_categories.add(category)
+                found_models.add(model)
+
+    return {
+        "models": sorted(found_models, key=VALID_MODELS.index),
+        "categories": sorted(found_categories),
+    }
 
 
 def load_actuals(category: str) -> pd.DataFrame:

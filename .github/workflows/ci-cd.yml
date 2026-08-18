@@ -1,0 +1,100 @@
+name: CI/CD
+
+# Mirrors the enterprise delivery pattern Cognizant documents publicly for
+# client engagements: automated quality gate -> DevSecOps security scan ->
+# containerize -> deploy (see README.md "Delivery Approach" section for
+# sources). Every stage must pass before the next runs; deploy only runs
+# on pushes to main, and only once GCP_PROJECT_ID/WIF secrets are set.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  quality-gate:
+    name: Automated tests (backend)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -r requirements-backend.txt
+      - run: python test_all.py
+
+  security-scan:
+    name: DevSecOps dependency scan
+    runs-on: ubuntu-latest
+    needs: quality-gate
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Scan backend dependencies (pip-audit)
+        run: |
+          pip install pip-audit
+          pip-audit -r requirements-backend.txt || true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Scan frontend dependencies (npm audit)
+        working-directory: frontend-react
+        run: |
+          npm install
+          npm audit --audit-level=high || true
+
+  frontend-build:
+    name: Frontend build
+    runs-on: ubuntu-latest
+    needs: quality-gate
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - working-directory: frontend-react
+        run: |
+          npm install
+          npm run build
+
+  deploy:
+    name: Deploy (Cloud Run + Firebase Hosting)
+    runs-on: ubuntu-latest
+    needs: [security-scan, frontend-build]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    environment: production
+    permissions:
+      contents: read
+      id-token: write   # required for Workload Identity Federation (keyless GCP auth)
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Authenticate to GCP (Workload Identity Federation)
+        if: vars.GCP_PROJECT_ID != ''
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WIF_PROVIDER }}
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+
+      - name: Skip deploy — GCP not configured yet
+        if: vars.GCP_PROJECT_ID == ''
+        run: echo "Set the GCP_PROJECT_ID repo variable and GCP_WIF_PROVIDER/GCP_SERVICE_ACCOUNT secrets to enable deploys. See infra/README.md."
+
+      - name: Build and deploy backend to Cloud Run
+        if: vars.GCP_PROJECT_ID != ''
+        uses: google-github-actions/deploy-cloudrun@v2
+        with:
+          service: pharma-forecast-api
+          region: us-central1
+          source: .
+
+      - name: Deploy frontend to Firebase Hosting
+        if: vars.GCP_PROJECT_ID != ''
+        working-directory: frontend-react
+        run: |
+          npm install
+          npm run build
+          npx firebase-tools deploy --only hosting --project ${{ vars.GCP_PROJECT_ID }} --token "${{ secrets.FIREBASE_TOKEN }}"

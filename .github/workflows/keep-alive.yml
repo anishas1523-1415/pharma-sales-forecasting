@@ -1,0 +1,24 @@
+name: Keep backend warm
+
+# Cloud Run scales to zero after idle traffic, which costs a cold start on
+# the next request (much shorter than typical free-tier PaaS since this
+# image has no heavy ML imports at runtime, but still non-zero). This pings
+# /health every 10 minutes to keep an instance warm. Set the BACKEND_URL
+# repository variable once the Cloud Run service is live (Settings ->
+# Secrets and variables -> Actions -> Variables).
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch: {}
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping /health
+        run: |
+          if [ -z "${{ vars.BACKEND_URL }}" ]; then
+            echo "BACKEND_URL repository variable not set yet — skipping."
+            exit 0
+          fi
+          curl -sf "${{ vars.BACKEND_URL }}/health" || echo "Ping failed (backend may be cold-starting)"

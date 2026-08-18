@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="220" height="42" viewBox="0 0 220 42">
+  <defs>
+    <linearGradient id="cyanGreen" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00D9FF" />
+      <stop offset="100%" stop-color="#00FF88" />
+    </linearGradient>
+  </defs>
+  <!-- Capsule / Pill Icon -->
+  <g transform="translate(6, 5)">
+    <rect x="0" y="0" width="30" height="15" rx="7.5" fill="#00D9FF" transform="rotate(-35 15 7.5)"/>
+    <path d="M 15 0 L 22.5 0 A 7.5 7.5 0 0 1 22.5 15 L 15 15 Z" fill="#00FF88" transform="rotate(-35 15 7.5)"/>
+    <line x1="10" y1="-2" x2="10" y2="18" stroke="#0F1419" stroke-width="1.5" transform="rotate(-35 15 7.5)"/>
+  </g>
+  <!-- Brand Name -->
+  <text x="44" y="24" font-family="'Inter', 'Segoe UI', sans-serif" font-size="18" font-weight="800" fill="url(#cyanGreen)">PharmaForecast</text>
+  <text x="44" y="37" font-family="'Inter', 'Segoe UI', sans-serif" font-size="9" font-weight="600" fill="#B0B5C0" letter-spacing="0.5">SALES ANALYTICS PLATFORM</text>
+</svg>

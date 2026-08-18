@@ -1,0 +1,104 @@
+/*
+  Fontshare (Clash Display + Switzer) instead of Inter/Space Grotesk —
+  those two are the current web-wide default, which reads as "generic"
+  rather than premium precisely because everything uses them. Clash
+  Display is a distinctive, editorial-grade geometric display face for
+  headings; Switzer is its quieter, highly legible body companion.
+  Both are free for commercial use, no attribution required.
+*/
+@import url('https://api.fontshare.com/v2/css?f[]=clash-display@500,600,700&f[]=switzer@400,500,600,700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import "tailwindcss";
+
+/*
+  Premium, restrained design language — deliberately NOT the neon
+  cyan/green-on-black "AI dashboard template" look. Flat near-black
+  canvas, one quiet accent color, desaturated status/model colors,
+  soft shadows instead of colored borders.
+*/
+@theme {
+  --color-canvas: #0a0a0c;
+  --color-surface: #131316;
+  --color-surface-2: #1b1b20;
+  --color-border: rgba(255, 255, 255, 0.08);
+  --color-border-strong: rgba(255, 255, 255, 0.16);
+
+  --color-text: #f4f4f5;
+  --color-text-muted: #98989f;
+  --color-text-faint: #5c5c63;
+
+  --color-accent: #7c6ff0;
+  --color-accent-soft: #7c6ff01f;
+
+  --color-positive: #3ecf8e;
+  --color-negative: #f0596b;
+  --color-warning: #f0b429;
+  --color-neutral-blue: #6ea8d8;
+
+  --color-model-prophet: #7c6ff0;
+  --color-model-arima: #e8b86c;
+  --color-model-sarima: #52c4a0;
+  --color-model-lightgbm: #e8836c;
+  --color-model-lstm: #6ea8d8;
+
+  --font-display: 'Clash Display', 'Switzer', sans-serif;
+  --font-sans: 'Switzer', sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+}
+
+:root {
+  color-scheme: dark;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+  background: var(--color-canvas);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+}
+
+body {
+  margin: 0;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-canvas);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-border-strong);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-accent);
+}
+
+/* Native range slider — thin track, quiet thumb (no neon glow) */
+input[type='range'] {
+  -webkit-appearance: none;
+  background: transparent;
+}
+input[type='range']::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: 2px;
+  background: var(--color-surface-2);
+}
+input[type='range']::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--color-accent);
+  border: 2px solid var(--color-canvas);
+  margin-top: -5px;
+  cursor: pointer;
+}

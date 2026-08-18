@@ -17,10 +17,14 @@ def forecast(req: ForecastRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
     rows = df.head(req.horizon)
-    predictions = [
-        {"date": row["date"], "prediction": round(float(row["predicted_sales"]), 2)}
-        for _, row in rows.iterrows()
-    ]
+    has_bounds = "lower_bound" in df.columns and "upper_bound" in df.columns
+    predictions = []
+    for _, row in rows.iterrows():
+        point = {"date": row["date"], "prediction": round(float(row["predicted_sales"]), 2)}
+        if has_bounds:
+            point["lower"] = round(float(row["lower_bound"]), 2)
+            point["upper"] = round(float(row["upper_bound"]), 2)
+        predictions.append(point)
     return {
         "category": req.category,
         "model": req.model,

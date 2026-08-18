@@ -1,0 +1,16 @@
+# Deploy-only dependencies for the FastAPI backend container (Cloud Run).
+#
+# The backend serves pre-generated forecast CSVs and metrics.json — it never
+# imports prophet/statsmodels/lightgbm/tensorflow at runtime (those are only
+# used offline by the training scripts under src/models/). Installing them
+# here would bloat the container image and slow the build for no benefit
+# (prophet in particular compiles a Stan backend, which is slow and fragile
+# on constrained CI-like build environments). Use requirements.txt instead
+# for local training work.
+
+fastapi>=0.110
+uvicorn[standard]>=0.29
+pydantic>=2.0
+pandas>=2.0
+numpy==1.26.4
+joblib>=1.3
