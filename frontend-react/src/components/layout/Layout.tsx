@@ -1,7 +1,8 @@
-import { NavLink, Outlet } from 'react-router-dom'
+import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import { useState } from 'react'
 import { useHealth, useModels } from '@/lib/queries'
 import { API_BASE_URL } from '@/lib/apiClient'
+import { CommandPalette } from './CommandPalette'
 
 const NAV_ITEMS = [
   { to: '/', label: 'Dashboard', icon: '◆' },
@@ -12,13 +13,19 @@ const NAV_ITEMS = [
   { to: '/models', label: 'Model Comparison', icon: '▣' },
 ]
 
+const isMac = typeof navigator !== 'undefined' && /Mac|iPhone|iPad/.test(navigator.platform ?? navigator.userAgent)
+
 export function Layout() {
   const { data: isConnected } = useHealth()
   const { data: models } = useModels()
   const [showStatus, setShowStatus] = useState(false)
+  const location = useLocation()
+  const current = NAV_ITEMS.find((n) => (n.to === '/' ? location.pathname === '/' : location.pathname.startsWith(n.to)))
 
   return (
     <div className="flex min-h-screen">
+      <CommandPalette />
+
       <aside className="flex w-60 shrink-0 flex-col border-r border-border px-4 py-6">
         <div className="mb-8 flex items-center gap-2.5 px-1">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent/15 text-accent">
@@ -68,9 +75,25 @@ export function Layout() {
         </div>
       </aside>
 
-      <main className="flex-1 overflow-x-hidden px-8 py-6">
-        <Outlet />
-      </main>
+      <div className="flex min-w-0 flex-1 flex-col">
+        <header className="flex h-14 shrink-0 items-center justify-between border-b border-border px-8">
+          <div className="flex items-center gap-2 text-xs text-text-faint">
+            <span>{current?.icon}</span>
+            <span className="text-text-muted">{current?.label ?? 'PharmaForecast'}</span>
+          </div>
+          <button
+            onClick={() => document.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', metaKey: true }))}
+            className="flex items-center gap-2 rounded-lg border border-border bg-surface px-3 py-1.5 text-xs text-text-faint transition-colors hover:border-border-strong hover:text-text-muted"
+          >
+            <span>Jump to…</span>
+            <kbd className="rounded border border-border bg-surface-2 px-1.5 py-0.5 font-mono text-[0.65rem]">{isMac ? '⌘' : 'Ctrl'} K</kbd>
+          </button>
+        </header>
+
+        <main className="min-w-0 flex-1 overflow-x-hidden px-8 py-6">
+          <Outlet />
+        </main>
+      </div>
     </div>
   )
 }

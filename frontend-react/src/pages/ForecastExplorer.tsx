@@ -1,6 +1,7 @@
 // Port of frontend/pages/2_📈_Forecast_Explorer.py
 
 import { useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { PageHeader } from '@/components/ui/PageHeader'
 import { KpiCard } from '@/components/ui/KpiCard'
 import { SectionTitle } from '@/components/ui/SectionTitle'
@@ -16,7 +17,9 @@ import type { Category, ModelType } from '@/types/api'
 export function ForecastExplorer() {
   const { data: isConnected } = useHealth()
   const { data: metrics } = useMetrics()
-  const [category, setCategory] = useState<Category>('M01AB')
+  const [searchParams] = useSearchParams()
+  const initialCategory = (searchParams.get('category') as Category) ?? 'M01AB'
+  const [category, setCategory] = useState<Category>(CATEGORIES.includes(initialCategory) ? initialCategory : 'M01AB')
   const [model, setModel] = useState<ModelType>('prophet')
   const [horizon, setHorizon] = useState(30)
   const [showHistory, setShowHistory] = useState(true)

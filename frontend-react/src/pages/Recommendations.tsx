@@ -10,6 +10,7 @@ import { OfflineBanner } from '@/components/ui/OfflineBanner'
 import { ControlBar, Select } from '@/components/ui/Controls'
 import { useHealth, useRecommendations } from '@/lib/queries'
 import { getRecommendations } from '@/lib/apiClient'
+import { useAcknowledged } from '@/lib/useAcknowledged'
 import { CATEGORIES, CAT_NAMES, VALIDATION_MODELS, MODEL_LABELS, SIGNAL_DESCRIPTIONS, SIGNAL_ICONS } from '@/lib/constants'
 import { fmtPct, fmtNum, priorityColor } from '@/lib/format'
 import type { Category, ModelType } from '@/types/api'
@@ -22,6 +23,7 @@ export function Recommendations() {
   const [category, setCategory] = useState<Category>('M01AB')
   const [model, setModel] = useState<ModelType>('arima')
   const [priorityFilter, setPriorityFilter] = useState<string[]>(['HIGH', 'MEDIUM', 'LOW'])
+  const { acknowledged, toggle } = useAcknowledged()
 
   const { data } = useRecommendations(category, model, !!isConnected && viewMode === 'single')
 
@@ -126,12 +128,46 @@ export function Recommendations() {
             if (recs.length === 0) {
               return <div className="rounded-xl border border-border bg-surface/60 p-4 text-sm text-text-muted">No recommendations match the selected priority filter.</div>
             }
+            const keyed = recs.map((r) => ({ ...r, key: `${category}:${r.signal}` }))
+            const active = keyed.filter((r) => !acknowledged.has(r.key))
+            const done = keyed.filter((r) => acknowledged.has(r.key))
             return (
               <>
-                <SectionTitle icon="💡" title={`Recommendations (${recs.length} signals)`} />
-                {recs.map((r, i) => (
-                  <RecCard key={i} signal={r.signal} priority={r.priority} text={r.recommendation} rationale={r.rationale} icon={SIGNAL_ICONS[r.signal] ?? '📊'} />
-                ))}
+                <SectionTitle icon="💡" title={`Recommendations (${active.length} active${done.length ? `, ${done.length} acknowledged` : ''})`} />
+                {active.length === 0 ? (
+                  <div className="rounded-xl border border-positive/25 bg-positive/[0.04] p-4 text-sm text-positive">✓ All caught up for {category}.</div>
+                ) : (
+                  active.map((r) => (
+                    <RecCard
+                      key={r.key}
+                      signal={r.signal}
+                      priority={r.priority}
+                      text={r.recommendation}
+                      rationale={r.rationale}
+                      icon={SIGNAL_ICONS[r.signal] ?? '📊'}
+                      onToggleAcknowledge={() => toggle(r.key)}
+                    />
+                  ))
+                )}
+                {done.length > 0 && (
+                  <details className="mt-2">
+                    <summary className="cursor-pointer text-xs text-text-faint">{done.length} acknowledged</summary>
+                    <div className="mt-2">
+                      {done.map((r) => (
+                        <RecCard
+                          key={r.key}
+                          signal={r.signal}
+                          priority={r.priority}
+                          text={r.recommendation}
+                          rationale={r.rationale}
+                          icon={SIGNAL_ICONS[r.signal] ?? '📊'}
+                          acknowledged
+                          onToggleAcknowledge={() => toggle(r.key)}
+                        />
+                      ))}
+                    </div>
+                  </details>
+                )}
               </>
             )
           })()}

@@ -112,6 +112,22 @@ export function Dashboard() {
     }
   })
 
+  // ── Headline insight — the first thing a reader sees, synthesized from
+  // the same recommendation/anomaly data as the sections below, not a
+  // separate analysis. Replaces a generic KPI-tiles opening with an
+  // actual read on portfolio state.
+  const allQueriesSettled = recQueries.every((q) => q.isFetched) && anomalyQueries.every((q) => q.isFetched)
+  const demandSpikes = highRecs.filter((r) => r.signal === 'DEMAND_SPIKE')
+  const restockAlerts = highRecs.filter((r) => r.signal === 'RESTOCK_ALERT')
+  const headline = demandSpikes.length
+    ? `${demandSpikes.length} categor${demandSpikes.length > 1 ? 'ies show' : 'y shows'} a high-severity demand spike`
+    : restockAlerts.length
+      ? `${restockAlerts.length} categor${restockAlerts.length > 1 ? 'ies are' : 'y is'} trending up and may need restocking`
+      : highRecs.length
+        ? `${highRecs.length} high-priority signal${highRecs.length > 1 ? 's' : ''} flagged across the portfolio`
+        : 'No high-priority signals — portfolio looks stable'
+  const leadCategory = (demandSpikes[0] ?? restockAlerts[0] ?? highRecs[0])?.category
+
   return (
     <div>
       <PageHeader
@@ -120,6 +136,30 @@ export function Dashboard() {
         connected={!!isConnected}
       />
       {!isConnected && <OfflineBanner />}
+
+      {isConnected && (
+        <div className={'mb-6 rounded-2xl border p-6 ' + (highRecs.length ? 'border-negative/25 bg-negative/[0.04]' : 'border-positive/25 bg-positive/[0.04]')}>
+          {!allQueriesSettled ? (
+            <div className="h-16 animate-pulse rounded-lg bg-surface-2" />
+          ) : (
+            <>
+              <div className="mb-2 flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-text-faint">
+                <span>{highRecs.length ? '⚠' : '✓'}</span> Today's read
+              </div>
+              <div className="font-display text-xl font-semibold leading-snug text-text">{headline}</div>
+              {leadCategory && (
+                <div className="mt-2 text-sm text-text-muted">
+                  Most urgent:{' '}
+                  <a href={`/forecast?category=${leadCategory}`} className="font-medium text-accent hover:underline">
+                    {leadCategory} — {CAT_NAMES[leadCategory as keyof typeof CAT_NAMES]}
+                  </a>
+                  {highRecs.length > 1 && ` · ${highRecs.length - 1} more below`}
+                </div>
+              )}
+            </>
+          )}
+        </div>
+      )}
 
       <SectionTitle icon="📊" title="Executive Overview" />
       <div className="mb-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
