@@ -45,3 +45,24 @@ desktop.ini
 *.tmp
 scratch/
 .system_generated/
+
+# ── Secrets & credentials — never commit these ──────────────────────
+infra/*.json
+infra/secrets/
+*-key.json
+*serviceaccount*.json
+*service-account*.json
+.env
+*.pem
+infra/.demo-api-key.txt
+
+# ── Terraform state & local plugin cache ────────────────────────────
+# State files can contain sensitive resource attributes; the plugin
+# cache is huge and machine-specific. The lock file (.terraform.lock.hcl)
+# IS meant to be committed — it's just a provider version pin.
+infra/.terraform/
+infra/terraform.tfstate
+infra/terraform.tfstate.backup
+infra/*.tfstate
+infra/*.tfstate.backup
+infra/.terraform.tfstate.lock.info
