@@ -1,122 +1,61 @@
 // Port of frontend/pages/1_🏠_Home.py
 
-import { useQueries } from '@tanstack/react-query'
 import { PageHeader } from '@/components/ui/PageHeader'
 import { KpiCard } from '@/components/ui/KpiCard'
 import { SectionTitle } from '@/components/ui/SectionTitle'
 import { RecCard } from '@/components/ui/RecCard'
 import { OfflineBanner } from '@/components/ui/OfflineBanner'
 import { PlotlyChart } from '@/components/ui/PlotlyChart'
-import { useHealth, useMetrics, useModels } from '@/lib/queries'
-import { getForecast, detectAnomalies, getRecommendations } from '@/lib/apiClient'
-import { bestModelFor, bestValidationModelFor } from '@/lib/modelSelection'
-import { CATEGORIES, CAT_NAMES, MODEL_COLORS, SIGNAL_ICONS } from '@/lib/constants'
+import { useDashboardSummary, useHealth, useModels } from '@/lib/queries'
+import { CAT_NAMES, MODEL_COLORS, SIGNAL_ICONS } from '@/lib/constants'
 import { fmtTrend } from '@/lib/format'
 import { applyDark } from '@/lib/charts'
 import type { Data } from 'plotly.js'
 
-const HORIZON = 30
-
 export function Dashboard() {
   const { data: isConnected } = useHealth()
-  const { data: metrics } = useMetrics()
   const { data: modelsData } = useModels()
-
-  const forecastQueries = useQueries({
-    queries: CATEGORIES.map((cat) => {
-      const model = bestModelFor(metrics, cat)
-      return {
-        queryKey: ['forecast', cat, model, HORIZON],
-        queryFn: () => getForecast(cat, model, HORIZON),
-        enabled: !!isConnected && !!metrics,
-        staleTime: 300_000,
-      }
-    }),
-  })
-
-  const anomalyQueries = useQueries({
-    queries: CATEGORIES.map((cat) => {
-      const model = bestValidationModelFor(metrics, cat)
-      return {
-        queryKey: ['anomalies', cat, model],
-        queryFn: () => detectAnomalies(cat, model),
-        enabled: !!isConnected && !!metrics,
-        staleTime: 300_000,
-      }
-    }),
-  })
-
-  const recQueries = useQueries({
-    queries: CATEGORIES.map((cat) => {
-      const model = bestValidationModelFor(metrics, cat)
-      return {
-        queryKey: ['recommendations', cat, model],
-        queryFn: () => getRecommendations(cat, model),
-        enabled: !!isConnected && !!metrics,
-        staleTime: 300_000,
-      }
-    }),
-  })
+  // Forecast + anomaly + recommendation data for all 8 categories in one
+  // request — see backend/services/dashboard_service.py. Used to be 24
+  // separate requests (forecast/anomaly/recommendations × 8 categories),
+  // which queued up behind the browser's per-host connection limit and
+  // were the real cause of this page's slow initial paint.
+  const { data: summary, isFetched } = useDashboardSummary(!!isConnected)
+  const categories = summary?.categories ?? []
 
   // ── KPIs ──────────────────────────────────────────────────────────
-  const allMaes: number[] = []
-  if (metrics) {
-    for (const cat of CATEGORIES) {
-      const catData = metrics[cat]
-      if (!catData) continue
-      for (const [key, m] of Object.entries(catData)) {
-        if (key === 'best_model' || typeof m !== 'object' || m === null) continue
-        const mae = (m as { MAE?: number }).MAE
-        if (mae !== undefined) allMaes.push(mae)
-      }
-    }
-  }
-  const avgMae = allMaes.length ? allMaes.reduce((a, b) => a + b, 0) / allMaes.length : null
+  const maes = categories.map((c) => c.model_mae).filter((v): v is number => v !== null && v !== undefined)
+  const avgMae = maes.length ? maes.reduce((a, b) => a + b, 0) / maes.length : null
 
   // ── Overview chart ───────────────────────────────────────────────
-  const overviewData: Data[] = CATEGORIES.map((cat, i) => {
-    const model = bestModelFor(metrics, cat)
-    const fc = forecastQueries[i].data
-    const pts = fc?.forecast ?? []
-    return {
-      x: pts.map((p) => p.date),
-      y: pts.map((p) => p.prediction),
-      name: cat,
+  const overviewData: Data[] = categories
+    .map((c) => ({
+      x: c.forecast.map((p) => p.date),
+      y: c.forecast.map((p) => p.prediction),
+      name: c.category,
       type: 'scatter',
       mode: 'lines',
-      line: { width: 2, color: MODEL_COLORS[model] },
-      hovertemplate: `<b>${cat}</b><br>Date: %{x}<br>Sales: %{y:,.2f}<extra></extra>`,
-    } as Data
-  }).filter((t) => (t as { x: unknown[] }).x.length > 0)
+      line: { width: 2, color: MODEL_COLORS[c.best_model] },
+      hovertemplate: `<b>${c.category}</b><br>Date: %{x}<br>Sales: %{y:,.2f}<extra></extra>`,
+    } as Data))
+    .filter((t) => (t as { x: unknown[] }).x.length > 0)
 
   // ── Anomaly summary ──────────────────────────────────────────────
-  let totalAnomalies = 0
-  let highSev = 0
-  const anomalyRows: { cat: string; totalDays: number; anomalies: number; high: number; model: string }[] = []
-  CATEGORIES.forEach((cat, i) => {
-    const data = anomalyQueries[i].data
-    if (!data) return
-    const high = data.results.filter((r) => r.severity === 'high').length
-    totalAnomalies += data.anomaly_count
-    highSev += high
-    anomalyRows.push({ cat, totalDays: data.total_days, anomalies: data.anomaly_count, high, model: bestValidationModelFor(metrics, cat).toUpperCase() })
-  })
+  const totalAnomalies = categories.reduce((sum, c) => sum + c.anomaly_count, 0)
+  const highSev = categories.reduce((sum, c) => sum + c.high_severity_count, 0)
 
   // ── Top recommendations ──────────────────────────────────────────
   const highRecs: { category: string; signal: string; priority: string; recommendation: string; rationale: string }[] = []
-  CATEGORIES.forEach((cat, i) => {
-    const data = recQueries[i].data
-    if (!data) return
-    for (const r of data.recommendations) {
-      if (r.priority === 'HIGH') highRecs.push({ ...r, category: cat })
+  for (const c of categories) {
+    for (const r of c.recommendations) {
+      if (r.priority === 'HIGH') highRecs.push({ ...r, category: c.category })
     }
-  })
+  }
 
   // ── Headline insight — the first thing a reader sees, synthesized from
   // the same recommendation/anomaly data as the sections below, not a
   // separate analysis. Replaces a generic KPI-tiles opening with an
   // actual read on portfolio state.
-  const allQueriesSettled = recQueries.every((q) => q.isFetched) && anomalyQueries.every((q) => q.isFetched)
   const demandSpikes = highRecs.filter((r) => r.signal === 'DEMAND_SPIKE')
   const restockAlerts = highRecs.filter((r) => r.signal === 'RESTOCK_ALERT')
   const headline = demandSpikes.length
@@ -139,7 +78,7 @@ export function Dashboard() {
 
       {isConnected && (
         <div className={'mb-6 rounded-2xl border p-6 ' + (highRecs.length ? 'border-negative/25 bg-negative/[0.04]' : 'border-positive/25 bg-positive/[0.04]')}>
-          {!allQueriesSettled ? (
+          {!isFetched ? (
             <div className="h-16 animate-pulse rounded-lg bg-surface-2" />
           ) : (
             <>
@@ -180,10 +119,9 @@ export function Dashboard() {
       <SectionTitle icon="📦" title="Category Overview" />
       <p className="mb-3 text-xs text-text-muted">Best model selected automatically per category based on lowest MAE.</p>
       <div className="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        {CATEGORIES.map((cat, i) => {
-          const model = bestModelFor(metrics, cat)
-          const color = MODEL_COLORS[model] ?? '#7C6FF0'
-          const pts = forecastQueries[i].data?.forecast ?? []
+        {categories.map((c) => {
+          const color = MODEL_COLORS[c.best_model] ?? '#7C6FF0'
+          const pts = c.forecast
           let trend: number | null = null
           if (pts.length >= 2) {
             const first = pts[0].prediction
@@ -191,18 +129,18 @@ export function Dashboard() {
             trend = first !== 0 ? ((last - first) / first) * 100 : 0
           }
           return (
-            <div key={cat} className="rounded-2xl border border-border bg-surface p-4 transition-colors hover:border-border-strong">
+            <div key={c.category} className="rounded-2xl border border-border bg-surface p-4 transition-colors hover:border-border-strong">
               <div className="flex items-center justify-between">
-                <span className="font-mono text-base font-semibold text-text">{cat}</span>
+                <span className="font-mono text-base font-semibold text-text">{c.category}</span>
                 <span className={'text-xs font-medium ' + ((trend ?? 0) >= 0 ? 'text-positive' : 'text-negative')}>{fmtTrend(trend)}</span>
               </div>
-              <div className="mt-1 text-xs text-text-faint">{CAT_NAMES[cat]}</div>
+              <div className="mt-1 text-xs text-text-faint">{CAT_NAMES[c.category as keyof typeof CAT_NAMES]}</div>
               <div className="mt-3">
                 <span
                   className="rounded-md px-2 py-0.5 text-[0.68rem] font-medium"
                   style={{ color, background: `${color}14` }}
                 >
-                  {model.toUpperCase()}
+                  {c.best_model.toUpperCase()}
                 </span>
               </div>
             </div>
@@ -233,13 +171,13 @@ export function Dashboard() {
                     </tr>
                   </thead>
                   <tbody>
-                    {anomalyRows.map((r) => (
-                      <tr key={r.cat} className="border-t border-border">
-                        <td className="px-3 py-2 font-mono">{r.cat}</td>
-                        <td className="px-3 py-2">{r.totalDays}</td>
-                        <td className="px-3 py-2">{r.anomalies}</td>
-                        <td className={'px-3 py-2 ' + (r.high > 0 ? 'font-bold text-negative' : '')}>{r.high}</td>
-                        <td className="px-3 py-2 text-text-muted">{r.model}</td>
+                    {categories.map((c) => (
+                      <tr key={c.category} className="border-t border-border">
+                        <td className="px-3 py-2 font-mono">{c.category}</td>
+                        <td className="px-3 py-2">{c.total_days}</td>
+                        <td className="px-3 py-2">{c.anomaly_count}</td>
+                        <td className={'px-3 py-2 ' + (c.high_severity_count > 0 ? 'font-bold text-negative' : '')}>{c.high_severity_count}</td>
+                        <td className="px-3 py-2 text-text-muted">{c.validation_model.toUpperCase()}</td>
                       </tr>
                     ))}
                   </tbody>

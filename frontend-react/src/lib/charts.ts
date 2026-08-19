@@ -11,10 +11,14 @@ export const DARK_LAYOUT: Partial<Layout> = {
   paper_bgcolor: 'rgba(0,0,0,0)',
   plot_bgcolor: 'rgba(0,0,0,0)',
   font: { family: 'Switzer, sans-serif', color: '#F4F4F5' },
-  xaxis: { gridcolor: 'rgba(255,255,255,0.06)', zerolinecolor: 'rgba(255,255,255,0.1)', showgrid: true },
-  yaxis: { gridcolor: 'rgba(255,255,255,0.06)', zerolinecolor: 'rgba(255,255,255,0.1)', showgrid: true },
+  // automargin: true — tick labels (e.g. y-axis numbers) were getting
+  // clipped by the fixed 10px margin below on charts with wider labels
+  // than expected; automargin lets Plotly expand the margin to fit
+  // whatever labels actually render, instead of a hardcoded guess.
+  xaxis: { gridcolor: 'rgba(255,255,255,0.06)', zerolinecolor: 'rgba(255,255,255,0.1)', showgrid: true, automargin: true },
+  yaxis: { gridcolor: 'rgba(255,255,255,0.06)', zerolinecolor: 'rgba(255,255,255,0.1)', showgrid: true, automargin: true },
   legend: { bgcolor: 'rgba(0,0,0,0)', bordercolor: 'rgba(255,255,255,0.08)', borderwidth: 1 },
-  margin: { l: 10, r: 10, t: 40, b: 10 },
+  margin: { l: 45, r: 20, t: 40, b: 30 },
   hovermode: 'x unified',
   hoverlabel: { bgcolor: '#1B1B20', bordercolor: 'rgba(255,255,255,0.1)', font: { color: '#F4F4F5' } },
 }

@@ -120,3 +120,25 @@ export interface ChatResponse {
   reply: string
   provider: 'gemini' | 'groq'
 }
+
+export interface DashboardForecastPoint {
+  date: string
+  prediction: number
+}
+
+export interface DashboardCategorySummary {
+  category: string
+  best_model: string
+  forecast: DashboardForecastPoint[]
+  validation_model: string
+  total_days: number
+  anomaly_count: number
+  high_severity_count: number
+  forecast_trend_pct: number
+  model_mae: number | null
+  recommendations: Recommendation[]
+}
+
+export interface DashboardSummaryResponse {
+  categories: DashboardCategorySummary[]
+}

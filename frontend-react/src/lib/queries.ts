@@ -8,6 +8,7 @@ import type {
   ActualsResponse,
   AnomalyResponse,
   CompareModelsResponse,
+  DashboardSummaryResponse,
   FeatureImportanceResponse,
   ForecastResponse,
   MetricsResponse,
@@ -23,6 +24,15 @@ export function useHealth(): UseQueryResult<boolean> {
     staleTime: 30_000,
     refetchInterval: 30_000,
     retry: 1,
+  })
+}
+
+export function useDashboardSummary(enabled = true): UseQueryResult<DashboardSummaryResponse> {
+  return useQuery({
+    queryKey: ['dashboard-summary'],
+    queryFn: api.getDashboardSummary,
+    staleTime: 300_000,
+    enabled,
   })
 }
 

@@ -9,6 +9,7 @@ import type {
   AnomalyResponse,
   ChatResponse,
   CompareModelsResponse,
+  DashboardSummaryResponse,
   FeatureImportanceResponse,
   ForecastResponse,
   MetricsResponse,
@@ -95,6 +96,16 @@ export async function runWhatIf(
 
 export async function getRecommendations(category: string, model: string): Promise<RecommendationResponse> {
   const { data } = await client.post<RecommendationResponse>('/api/recommendations', { category, model })
+  return data
+}
+
+export async function getDashboardSummary(): Promise<DashboardSummaryResponse> {
+  // One request for forecast + anomaly + recommendation data across all 8
+  // categories — see backend/services/dashboard_service.py. Replaces what
+  // used to be 24 separate requests from the Dashboard page, which queued
+  // up behind the browser's per-host connection limit and were the real
+  // cause of its slow initial paint.
+  const { data } = await client.get<DashboardSummaryResponse>('/api/dashboard-summary', { timeout: 20_000 })
   return data
 }
 
