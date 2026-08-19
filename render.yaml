@@ -1,8 +1,7 @@
-# Render Blueprint — deploys both services from one file, no card required
-# for the free tier. https://render.com/docs/blueprint-spec
+# Render Blueprint — backend only. https://render.com/docs/blueprint-spec
 #
-# Backend: Docker web service (uses the repo's Dockerfile directly).
-# Frontend: static site build of frontend-react/.
+# Frontend deploys separately to Vercel (frontend-react/vercel.json).
+# Uses the repo's Dockerfile directly, no card required for the free tier.
 
 services:
   - type: web
@@ -13,21 +12,6 @@ services:
     healthCheckPath: /health
     envVars:
       - key: FRONTEND_ORIGIN
-        value: https://pharma-forecast.onrender.com
+        sync: false   # set to the Vercel URL once known, e.g. https://pharma-forecast.vercel.app
       - key: API_KEYS
         sync: false   # set manually in the Render dashboard after first deploy
-
-  - type: web
-    name: pharma-forecast
-    runtime: static
-    buildCommand: cd frontend-react && npm install && npm run build
-    staticPublishPath: frontend-react/dist
-    envVars:
-      - key: VITE_API_BASE_URL
-        value: https://pharma-forecast-api.onrender.com
-      - key: VITE_API_KEY
-        sync: false   # set manually in the Render dashboard, matching API_KEYS above
-    routes:
-      - type: rewrite
-        source: /*
-        destination: /index.html

@@ -2,6 +2,8 @@ import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import { useState } from 'react'
 import { useHealth, useModels } from '@/lib/queries'
 import { API_BASE_URL } from '@/lib/apiClient'
+import { useAuth } from '@/lib/AuthContext'
+import { supabase } from '@/lib/supabaseClient'
 import { CommandPalette } from './CommandPalette'
 
 const NAV_ITEMS = [
@@ -18,6 +20,7 @@ const isMac = typeof navigator !== 'undefined' && /Mac|iPhone|iPad/.test(navigat
 export function Layout() {
   const { data: isConnected } = useHealth()
   const { data: models } = useModels()
+  const { user, signOut } = useAuth()
   const [showStatus, setShowStatus] = useState(false)
   const location = useLocation()
   const current = NAV_ITEMS.find((n) => (n.to === '/' ? location.pathname === '/' : location.pathname.startsWith(n.to)))
@@ -70,6 +73,18 @@ export function Layout() {
               <div className="mb-2 text-text">{models?.models?.length ?? 0} / 5</div>
               <div className="mb-1 text-text-faint">Categories Loaded</div>
               <div className="text-text">{models?.categories?.length ?? 0} / 8</div>
+              {supabase && user && (
+                <>
+                  <div className="mb-1 mt-2 border-t border-border pt-2 text-text-faint">Signed in as</div>
+                  <div className="mb-2 truncate text-text">{user.email}</div>
+                  <button
+                    onClick={() => signOut()}
+                    className="w-full rounded-md border border-border px-2 py-1 text-left text-negative transition-colors hover:border-negative/40 hover:bg-negative/10"
+                  >
+                    Sign out
+                  </button>
+                </>
+              )}
             </div>
           )}
         </div>

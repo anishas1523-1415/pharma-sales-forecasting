@@ -1,6 +1,8 @@
 import { Suspense, lazy } from 'react'
 import { Routes, Route } from 'react-router-dom'
 import { Layout } from '@/components/layout/Layout'
+import { RequireAuth } from '@/components/layout/RequireAuth'
+import { Login } from '@/pages/Login'
 
 // Route-level code splitting: each page (and the Plotly charts it pulls
 // in) only downloads when the user actually navigates there, instead of
@@ -19,13 +21,16 @@ function PageFallback() {
 export default function App() {
   return (
     <Routes>
-      <Route element={<Layout />}>
-        <Route index element={<Suspense fallback={<PageFallback />}><Dashboard /></Suspense>} />
-        <Route path="forecast" element={<Suspense fallback={<PageFallback />}><ForecastExplorer /></Suspense>} />
-        <Route path="anomalies" element={<Suspense fallback={<PageFallback />}><AnomalyDetection /></Suspense>} />
-        <Route path="whatif" element={<Suspense fallback={<PageFallback />}><WhatIfSimulator /></Suspense>} />
-        <Route path="recommendations" element={<Suspense fallback={<PageFallback />}><Recommendations /></Suspense>} />
-        <Route path="models" element={<Suspense fallback={<PageFallback />}><ModelComparison /></Suspense>} />
+      <Route path="login" element={<Login />} />
+      <Route element={<RequireAuth />}>
+        <Route element={<Layout />}>
+          <Route index element={<Suspense fallback={<PageFallback />}><Dashboard /></Suspense>} />
+          <Route path="forecast" element={<Suspense fallback={<PageFallback />}><ForecastExplorer /></Suspense>} />
+          <Route path="anomalies" element={<Suspense fallback={<PageFallback />}><AnomalyDetection /></Suspense>} />
+          <Route path="whatif" element={<Suspense fallback={<PageFallback />}><WhatIfSimulator /></Suspense>} />
+          <Route path="recommendations" element={<Suspense fallback={<PageFallback />}><Recommendations /></Suspense>} />
+          <Route path="models" element={<Suspense fallback={<PageFallback />}><ModelComparison /></Suspense>} />
+        </Route>
       </Route>
     </Routes>
   )
