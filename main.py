@@ -51,10 +51,10 @@ _extra_origins = [o.strip() for o in os.environ.get("FRONTEND_ORIGIN", "").split
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=_default_origins + _extra_origins,
+    allow_origins=["*"],
     allow_credentials=False,
-    allow_methods=["GET", "POST"],
-    allow_headers=["*", "X-API-Key"],
+    allow_methods=["GET", "POST", "OPTIONS", "PUT", "DELETE"],
+    allow_headers=["*"],
 )
 
 # --- Health check stays open — needed for uptime pings / Cloud Run probes ---
