@@ -6,9 +6,9 @@ and honestly compared forecasting models, then layers anomaly detection,
 what-if scenario simulation, and rule-based supply-chain recommendations on
 top — served through a FastAPI backend and a React dashboard.
 
-## Architecture
+**Live**: https://pharma-forecast-two.vercel.app
 
-**Full diagram (layers, security, CI/CD, and the engineering decisions behind them): https://claude.ai/code/artifact/262f2c13-2e6f-4be8-9079-daf2ebbdd718**
+## Architecture
 
 ```
 data/raw (Kaggle pharma sales, 2014-2019 daily)
@@ -107,7 +107,7 @@ uvicorn main:app --reload
 ```bash
 cd frontend-react
 npm install
-cp .env.example .env   # VITE_API_BASE_URL, defaults to localhost:8000
+cp .env.example .env   # API base URL + Supabase project (values already filled in)
 npm run dev
 ```
 
@@ -129,7 +129,11 @@ python test_all.py   # 19/19 must pass
   (comma-separated env var). Unset locally/in CI, so dev and tests never need
   a key; the deployed demo instance ships a published key precisely so the
   live pitch isn't gated behind credentials only the team has. `/health`
-  always stays open (Cloud Run health checks, uptime pings).
+  always stays open (uptime pings, load balancer health checks).
+- **Real user authentication** (Supabase Auth) gates the frontend behind a
+  login screen — email/password accounts, not a shared API key. Row Level
+  Security policies (not client-side trust) protect per-user data such as
+  the recommendation-acknowledgment table.
 - **Prometheus metrics** at `/observability/metrics` — real request-count and
   latency histograms via `prometheus_client`, scrape-ready. (Not built on the
   usual FastAPI-instrumentor wrapper package — it pulled in a starlette major
@@ -145,22 +149,22 @@ python test_all.py   # 19/19 must pass
 
 ## Delivery approach
 
-Follows the same pattern Cognizant documents publicly for enterprise cloud
-engagements — CI/CD automation, containerization, Infrastructure-as-Code,
-and DevSecOps security scanning in the pipeline — applied here on free-tier
-GCP infrastructure:
+CI/CD automation, containerization, and Infrastructure-as-Code, applied here
+on free-tier infrastructure:
 
 - **CI/CD**: `.github/workflows/ci-cd.yml` — automated test gate
   (`test_all.py`, 19/19) → dependency security scan (pip-audit + npm audit)
   → containerize → deploy, gated so nothing ships without passing tests.
+  `.github/workflows/keep-alive.yml` pings `/health` every 10 minutes so the
+  backend's free-tier instance doesn't cold-start on a recruiter's first
+  request.
 - **Containerization**: `Dockerfile` — slim, backend-only image (no ML
   training libraries at runtime).
-- **Infrastructure as Code**: `infra/main.tf` — Cloud Run + Artifact
-  Registry, not manual console configuration.
-- **Deployment**: Cloud Run (backend) + Firebase Hosting (frontend) — both
-  perpetual free tier. See `infra/README.md` for the one-time account setup
-  (requires your own GCP account — that step can't be automated on your
-  behalf).
+- **Live deployment**: backend on Render (Docker, from this repo's
+  `Dockerfile`), frontend on Vercel, auth + Postgres on Supabase — all
+  perpetual free tier, no card required. `infra/main.tf` has an alternate
+  Cloud Run + Artifact Registry path (Terraform, GCP) for environments where
+  a paid cloud account is available; see `infra/README.md`.
 
 ## Legacy Streamlit app
 
@@ -171,5 +175,6 @@ not the primary demo path. It talks to the same backend.
 
 **Backend**: FastAPI, pandas, pydantic · **Models**: Prophet, statsmodels
 (ARIMA/SARIMA), LightGBM + Optuna, LSTM (Keras) · **Frontend**: React 19,
-TypeScript, Vite, Tailwind CSS v4, TanStack Query, Plotly.js · **Delivery**:
-Docker, Terraform, GitHub Actions, GCP (Cloud Run + Firebase Hosting)
+TypeScript, Vite, Tailwind CSS v4, TanStack Query, Plotly.js · **Auth/DB**:
+Supabase (Postgres, Row Level Security) · **Delivery**: Docker, GitHub
+Actions, Render, Vercel
