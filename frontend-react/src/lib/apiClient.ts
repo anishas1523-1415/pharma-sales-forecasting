@@ -31,7 +31,12 @@ const client = axios.create({
 
 export async function checkHealth(): Promise<boolean> {
   try {
-    await client.get('/health')
+    // Longer timeout than other endpoints — Render's free tier spins the
+    // backend down after ~15min idle, and a cold start can take 20-30s.
+    // The keep-alive workflow (.github/workflows/keep-alive.yml) pings
+    // every 10min to avoid this in steady state, but this is the fallback
+    // so a single missed ping doesn't flash "offline" for a healthy backend.
+    await client.get('/health', { timeout: 25_000 })
     return true
   } catch {
     return false

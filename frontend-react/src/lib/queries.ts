@@ -22,7 +22,7 @@ export function useHealth(): UseQueryResult<boolean> {
     queryFn: api.checkHealth,
     staleTime: 30_000,
     refetchInterval: 30_000,
-    retry: false,
+    retry: 1,
   })
 }
 
