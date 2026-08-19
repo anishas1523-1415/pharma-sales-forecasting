@@ -5,6 +5,7 @@ import { API_BASE_URL } from '@/lib/apiClient'
 import { useAuth } from '@/lib/AuthContext'
 import { supabase } from '@/lib/supabaseClient'
 import { CommandPalette } from './CommandPalette'
+import { ChatWidget } from './ChatWidget'
 
 const NAV_ITEMS = [
   { to: '/', label: 'Dashboard', icon: '◆' },
@@ -28,6 +29,7 @@ export function Layout() {
   return (
     <div className="flex min-h-screen">
       <CommandPalette />
+      <ChatWidget />
 
       <aside className="flex w-60 shrink-0 flex-col border-r border-border px-4 py-6">
         <div className="mb-8 flex items-center gap-2.5 px-1">

@@ -4,6 +4,7 @@ main.py — Unified FastAPI entry point.
 All routes live under backend/routes/:
   /health, /models, /metrics, /forecast, /compare-models, /actuals
   /api/anomaly, /api/what-if, /api/recommendations, /feature-importance
+  /api/chat
 
 Run from project root:
     uvicorn main:app --reload
@@ -20,7 +21,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from backend.auth import require_api_key
 from backend.observability import configure_json_logging, instrument
 from backend.services.model_service import model_service
-from backend.routes import health, models, metrics, forecast, anomaly, whatif, recommendation, actuals, explainability
+from backend.routes import health, models, metrics, forecast, anomaly, whatif, recommendation, actuals, explainability, chat
 
 
 @asynccontextmanager
@@ -75,3 +76,4 @@ app.include_router(explainability.router, dependencies=_auth)
 app.include_router(anomaly.router, dependencies=_auth)
 app.include_router(whatif.router, dependencies=_auth)
 app.include_router(recommendation.router, dependencies=_auth)
+app.include_router(chat.router, dependencies=_auth)

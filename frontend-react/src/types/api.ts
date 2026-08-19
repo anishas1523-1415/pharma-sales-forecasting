@@ -115,3 +115,8 @@ export interface RecommendationResponse {
   anomaly_count: number
   recommendations: Recommendation[]
 }
+
+export interface ChatResponse {
+  reply: string
+  provider: 'gemini' | 'groq'
+}

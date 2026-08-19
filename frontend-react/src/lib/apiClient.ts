@@ -7,6 +7,7 @@ import axios from 'axios'
 import type {
   ActualsResponse,
   AnomalyResponse,
+  ChatResponse,
   CompareModelsResponse,
   FeatureImportanceResponse,
   ForecastResponse,
@@ -94,5 +95,12 @@ export async function runWhatIf(
 
 export async function getRecommendations(category: string, model: string): Promise<RecommendationResponse> {
   const { data } = await client.post<RecommendationResponse>('/api/recommendations', { category, model })
+  return data
+}
+
+export async function sendChatMessage(message: string): Promise<ChatResponse> {
+  // Gemini's own timeout is 25s server-side, plus a Groq fallback attempt
+  // on top of that — give the round trip real room before giving up.
+  const { data } = await client.post<ChatResponse>('/api/chat', { message }, { timeout: 40_000 })
   return data
 }
